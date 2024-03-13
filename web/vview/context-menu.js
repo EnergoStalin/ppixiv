@@ -1038,6 +1038,15 @@ export default class ContextMenu extends Widget
             return true;
         }
 
+        if(e.key.toUpperCase() == "L")
+        {
+            if(mediaId == null)
+                return;
+
+            ppixiv.imageTranslations.setTranslationsEnabled(mediaId, true);
+            return true;
+        }
+
         return false;
     }
 
