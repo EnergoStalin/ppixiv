@@ -1008,6 +1008,36 @@ export default class ContextMenu extends Widget
             return true;
         }
 
+        async function localNavigate (pathCallback)
+        {
+            if(mediaId == null)
+                return;
+
+            let mediaInfo = await ppixiv.mediaCache.getMediaInfo(mediaId, { full: false });
+            let args = new helpers.args(await pathCallback(mediaInfo));
+
+            if(e.shiftKey)
+            {
+                window.open(args.toString(), "_blank");
+                return;
+            }
+
+            helpers.navigate(args, { scrollToTop: true });
+        }
+
+        if(e.key.toUpperCase() == "U")
+        {
+            localNavigate((mediaInfo) => `/users/${mediaInfo.userId}#ppixiv`);
+            return true;
+        }
+
+        if(e.key.toUpperCase() == "I")
+        {
+            localNavigate((mediaInfo) => `/bookmark_detail.php?illust_id=${mediaInfo.illustId}#ppixiv?recommendations=1`);
+            return true;
+        }
+
+
         return false;
     }
 
