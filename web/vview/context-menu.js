@@ -1008,27 +1008,35 @@ export default class ContextMenu extends Widget
             return true;
         }
 
+        async function navigate(pcallback)
+        {
+            if(mediaId == null)
+                return;
+
+            let mediaInfo = await ppixiv.mediaCache.getMediaInfo(mediaId, { full: false });
+            let args = new helpers.args(await pcallback(mediaInfo));
+
+            if(e.shiftKey)
+            {
+                window.open(args.toString(), "_blank");
+                return;
+            }
+
+            helpers.navigate(args, { scrollToTop: true });
+        }
+
         if(e.key.toUpperCase() == "I")
         {
-            (async () => {
-                if(mediaId == null)
-                    return;
-
-                let mediaInfo = await ppixiv.mediaCache.getMediaInfo(mediaId, { full: false });
-                let args = new helpers.args(`/bookmark_detail.php?illust_id=${mediaInfo.illustId}#ppixiv?recommendations=1`);
-
-                if(e.shiftKey)
-                {
-                    window.open(args.toString(), "_blank");
-                    return;
-                }
-
-                helpers.navigate(args, { scrollToTop: true });
-            })()
-
+            navigate((mediaInfo) => `/bookmark_detail.php?illust_id=${mediaInfo.illustId}#ppixiv?recommendations=1`);
             return true;
         }
 
+        
+        if(e.key.toUpperCase() == "U")
+        {
+            navigate((mediaInfo) => `/users/${mediaInfo.userId}#ppixiv`);
+            return true;
+        }
 
         return false;
     }
@@ -1084,27 +1092,6 @@ export default class ContextMenu extends Widget
             
                 await Actions.follow(userId, followPrivately);
             })();
-
-            return true;
-        }
-
-        if(e.key.toUpperCase() == "U")
-        {
-            (async () => {
-                if(userId == null)
-                    return;
-
-                let args = new helpers.args(`/users/${userId}#ppixiv`);
-
-                if(e.shiftKey)
-                {
-                    window.open(args.toString(), "_blank");
-                    return;
-                }
-
-                console.log(args.toString());
-                helpers.navigate(args, { scrollToTop: true });
-            })()
 
             return true;
         }
