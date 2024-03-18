@@ -92,10 +92,18 @@ export default class Actions
         if(options == null)
             options = {};
 
-        // If bookmark_privately_by_default is enabled and private wasn't specified
-        // explicitly, set it to true.
-        if(options.private == null && ppixiv.settings.get("bookmark_privately_by_default"))
-            options.private = true;
+        // Probably theres a lot better way of handling this but this works.
+        // So when it's private by default were handling options.private diffrently here
+        if(ppixiv.settings.get("bookmark_privately_by_default"))
+        {
+            // if private is true invert it to false for allowing Ctrl+Alt+B to bookmark publicly
+            if(options.private === true)
+                options.private = false;
+
+            // if private wasn't specified explicitly, set it to true.
+            if(options.private === null)
+                options.private = true;
+        }
 
         let mediaInfo = await ppixiv.mediaCache.getMediaInfo(mediaId, { full: false });
 
