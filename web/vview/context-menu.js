@@ -1008,12 +1008,12 @@ export default class ContextMenu extends Widget
             return true;
         }
 
-        async function navigate(pcallback)
+        async function navigate(pcallback, requestFullMediaInfo = false)
         {
             if(mediaId == null)
                 return;
 
-            let mediaInfo = await ppixiv.mediaCache.getMediaInfo(mediaId, { full: false });
+            let mediaInfo = await ppixiv.mediaCache.getMediaInfo(mediaId, { full: requestFullMediaInfo });
             let args = new helpers.args(await pcallback(mediaInfo));
 
             if(e.shiftKey)
@@ -1031,6 +1031,24 @@ export default class ContextMenu extends Widget
             return true;
         }
 
+        if(e.key.toUpperCase() == "G")
+        {
+            navigate((mediaInfo) => {
+                let seriesId = mediaInfo?.seriesNavData?.seriesId;
+
+                if(seriesId != null)
+                {
+                    let args = new helpers.args("/", ppixiv.plocation);
+                    args.path  = `/user/${mediaInfo.userId}/series/${seriesId}`;
+                    return args.url.toString();
+                }
+                else
+                {
+                    return getUrlForMediaId(mediaInfo?.mediaId, { manga: true }).url.toString();
+                }
+            }, true);
+            return true;
+        }
         
         if(e.key.toUpperCase() == "U")
         {
