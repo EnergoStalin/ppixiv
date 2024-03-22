@@ -1065,6 +1065,17 @@ export default class ContextMenu extends Widget
             return true;
         }
 
+        if(e.key.toUpperCase() == "M")
+        {
+            const ui = ppixiv.app._screenIllust.desktopUi;
+            const visible = ui.hoveringOverBox || ui.hoveringOverSphere;
+
+            ui.hoveringOverBox = ui.hoveringOverSphere = !visible;
+            ui.refreshOverlayUiVisibility();
+
+            return true;
+        }
+
         return false;
     }
 
