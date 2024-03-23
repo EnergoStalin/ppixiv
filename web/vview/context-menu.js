@@ -1071,6 +1071,11 @@ export default class ContextMenu extends Widget
             const visible = ui.hoveringOverBox || ui.hoveringOverSphere;
 
             ui.hoveringOverBox = ui.hoveringOverSphere = !visible;
+
+            if (!visible) {
+                ui.avatarWidget.followDropdownOpener.visible = false;
+            }
+
             ui.refreshOverlayUiVisibility();
 
             return true;
