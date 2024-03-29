@@ -352,6 +352,21 @@ function createSettingsWidget({ globalOptions })
             });
         },
 
+        preloadManga: () => {
+            let values = {
+                full: "All pages",
+                partial: "Nearby pages",
+                thumbnails: "Thumbnails only",
+            };
+
+            return new MenuOptionOptionsSetting({
+                ...globalOptions,
+                setting: "preload_manga",
+                label: "Preload manga",
+                values,
+            });
+        },
+
         openPixiv: () => {
             return new MenuOptionButton({
                 ...globalOptions,
@@ -709,7 +724,10 @@ export class SettingsDialog extends DialogWidget
                     settingsWidgets.limitSlideshowFramerate();
         
                 if(!ppixiv.native)
+                {
                     settingsWidgets.pixivCdn();
+                    settingsWidgets.preloadManga();
+                }
 
                 if(!ppixiv.native && ppixiv.mobile)
                     settingsWidgets.openPixiv();
