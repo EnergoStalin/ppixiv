@@ -42,6 +42,7 @@ export class helpers
         let icon = document.createElement("span");
         icon.classList.add("font-icon");
         icon.classList.add(iconClass);
+        icon.setAttribute("translate", "no");
         icon.lang = "icon";
         icon.innerText = name;
 
@@ -78,7 +79,7 @@ export class helpers
             if(resource == null)
             {
                 console.error("Unknown resource \"" + name + "\" in", element);
-                continue;
+                resource = other.blankImage;
             }
             element.setAttribute("src", resource);
 

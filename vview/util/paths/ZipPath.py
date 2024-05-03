@@ -189,7 +189,7 @@ class SharedZipFile:
         """
         if self._cached_root_entry is None:
             # Use the ZIP's ctime as the root's timestamp.
-            ctime = self.path.stat().st_ctime
+            ctime = self.path.stat().st_birthtime
             timestamp = datetime.fromtimestamp(ctime, tz=timezone.utc)
             self._cached_root_entry = ZipPathInfo('', None, None, 0, True, timestamp)
 
@@ -321,7 +321,8 @@ class ZipPath(PathBase):
             mode, 0, 0, 1, 0, 0, entry.size,
             timestamp, timestamp, timestamp, # int atime, mtime, ctime
             timestamp, timestamp, timestamp, # float atime, mtime, ctime
-            timestamp_ns, timestamp_ns, timestamp_ns, # atime_ns, mtime_ns, ctime_ns
+            timestamp_ns, timestamp_ns, timestamp_ns, # atime_ns, mtime_ns, ctime_ns,
+            timestamp, timestamp, # birthtime, birthtime_ns
         ))
 
     def scandir(self):
