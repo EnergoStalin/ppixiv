@@ -1,0 +1,19 @@
+name: release
+
+on:
+  push:
+    tags:
+      - 'r*u*'
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - run: python build.py
+      - uses: ncipollo/release-action@v1
+        with:
+          artifacts: "output/ppixiv-main.user.js"

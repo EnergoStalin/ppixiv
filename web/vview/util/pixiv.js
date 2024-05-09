@@ -21,6 +21,53 @@ export function splitTagPrefixes(tag)
         return ["", tag];
 }
 
+// Group tags by their translation from a tag autocomplete result.
+export function groupTagsByTranslation(autocompletedTags, translatedTags)
+{
+    const tagGroupReducer = (acc, tag) => {
+        const strippedTag = tag.tag.replace(/\s*\(.+\)\s*/g, "");
+
+        // Consider translated itself if defined as property but does not have a value
+        if(!Object.hasOwn(translatedTags, strippedTag))
+        {
+            acc.standalone.push({ tag: tag.tag });
+            return acc;
+        }
+
+        const translatedTag = translatedTags[strippedTag] ?? tag.tag;
+        let slug = translatedTag.toLowerCase();
+        acc.groups[slug] ??= { tag: new Set() };
+        acc.groups[slug].tag.add(tag.tag);
+
+        return acc;
+    }
+
+    // Run twice ensuring all prefix tags are collected in groups
+    let groupedTags = { groups: {}, standalone: [] };
+    groupedTags = autocompletedTags.reduce(tagGroupReducer, groupedTags);
+
+    let tagCounts = new Map();
+    for(let tag of autocompletedTags)
+        tagCounts.set(tag.tag, parseInt(tag.accessCount));
+
+    let convertedGroups = [];
+    for(let [forTag, { tag }] of Object.entries(groupedTags.groups))
+    {
+        const tags = Array.from(tag).toSorted((lhs, rhs) => tagCounts.get(rhs) - tagCounts.get(lhs));
+        const search = tags.length === 1 ? tags[0] : `( ${tags.join(' OR ')} )`;
+        convertedGroups.push({
+            tag: search,
+            tagList: tags,
+            forTag,
+        });
+    }
+
+    return [
+        ...convertedGroups,
+        ...groupedTags.standalone,
+    ];
+}
+    
 // Some of Pixiv's URLs have languages prefixed and some don't.  Ignore these and remove
 // them to make them simpler to parse.
 export function getPathWithoutLanguage(path)
@@ -47,10 +94,6 @@ export function splitSearchTags(search)
 {
     // Replace full-width spaces with regular spaces.  Pixiv treats this as a delimiter.
     search = search.replace("　", " ");
-
-    // Make sure there's a single space around parentheses, so parentheses are treated as their own item.
-    // This makes it easier to translate tags inside parentheses, and style parentheses separately.
-    search = search.replace(/ *([\(\)]) */g, " $1 ");
 
     // Remove repeated spaces.
     search = search.replace(/ +/g, " ");
