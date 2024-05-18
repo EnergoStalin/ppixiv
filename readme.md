@@ -1,6 +1,6 @@
 This user script improves viewing illustrations on Pixiv.
 
-The most recent version [can be installed here](https://ppixiv.org/install).
+The most recent version [can be installed here](https://github.com/EnergoStalin/ppixiv/releases/latest/download/ppixiv-main.user.js).
 
 ![](https://ppixiv.org/screenshot.png)
 
