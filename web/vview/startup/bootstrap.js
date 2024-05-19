@@ -51,8 +51,13 @@ async function Bootstrap({bundle}={})
                 data = new FormData();
                 for(let [key, value] of Object.entries(formData))
                 {
-                    // Convert ArrayBuffers to blobs.
-                    if(value instanceof ArrayBuffer)
+                    // The value might be a blob or an ArrayBuffer.  Convert it to a blob.
+                    //
+                    // A bug in Firefox and/or FireMonkey causes the ArrayBuffer to be from the
+                    // page context instead of the script context, which breaks "value instanceof ArrayBuffer".
+                    // We can just not check, since constructing a blob from a blob doesn't hurt
+                    // anything.
+                    if(value.toString() == "[object ArrayBuffer]")
                         value = new Blob([value]);
                 
                     data.append(key, value);
@@ -125,4 +130,3 @@ async function Bootstrap({bundle}={})
 }
 
 // This script is executed by eval(), so this expression is its return value.
-Bootstrap;
