@@ -37,26 +37,6 @@ overseer.register_template({
 })
 
 overseer.register_template({
-  name = 'adb push ppixiv',
-  builder = function()
-    return {
-      name = 'adb push',
-      cmd = {
-        'adb',
-        'push',
-        './output/ppixiv-main.user.js',
-        '/storage/emulated/0/',
-      },
-      cwd = vim.fn.getcwd(),
-      components = {
-        'default',
-        'unique',
-      }
-    }
-  end
-})
-
-overseer.register_template({
   name = 'nginx',
   params = {
     path = {
@@ -153,9 +133,7 @@ overseer.register_template({
           'dependencies',
           task_names = {
             'build ppixiv',
-            'adb push ppixiv'
           },
-          sequential = true
         },
       }
     }
