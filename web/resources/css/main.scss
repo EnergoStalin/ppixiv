@@ -1110,6 +1110,12 @@ body.hide-r18g .r18g { display: none; }
             .box,-button-row, .box-button-row-group {
                 justify-content: center;
             }
+            .box-button-row {
+              padding-top: .5em;
+            }
+            .box-button-row > .box-link {
+              font-size: .6em;
+            }
         }
     }
 
