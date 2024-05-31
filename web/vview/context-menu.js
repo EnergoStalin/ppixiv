@@ -967,7 +967,8 @@ export default class ContextMenu extends Widget
                 }
 
                 Actions.bookmarkAdd(mediaId, {
-                    private: bookmarkPrivately
+                    private: bookmarkPrivately,
+                    shortcut: true
                 });
             })();
             

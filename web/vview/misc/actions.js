@@ -92,13 +92,14 @@ export default class Actions
         if(options == null)
             options = {};
 
+        console.log(options)
+
         // Probably theres a lot better way of handling this but this works.
         // So when it's private by default were handling options.private diffrently here
         if(ppixiv.settings.get("bookmark_privately_by_default"))
         {
-            // if private is true invert it to false for allowing Ctrl+Alt+B to bookmark publicly
-            if(options.private === true)
-                options.private = false;
+            if(options.shortcut === true && options.private == true)
+                options.private = false
 
             // if private wasn't specified explicitly, set it to true.
             if(options.private === null)
