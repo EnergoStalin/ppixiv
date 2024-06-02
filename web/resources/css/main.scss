@@ -1097,6 +1097,9 @@ body.hide-r18g .r18g { display: none; }
 
         .search-title {
             text-align: center;
+            display: block;
+            max-height: 10vh;
+            overflow-y: auto;
         }
 
         .avatar-widget {
@@ -1944,13 +1947,13 @@ body.hide-r18g .r18g { display: none; }
 
     // Buttons to the right of the input box:
     > .right-side-button {
-        
-        display: flex;//inline-block;
+        display: flex;
         font-size: 150%;
         vertical-align: middle;
         cursor: pointer;
         user-select: none;
         -webkit-user-select: none;
+        &.disabled { color: #888; }
     }
 }
 
