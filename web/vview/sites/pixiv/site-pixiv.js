@@ -283,7 +283,7 @@ export default class SitePixiv extends Site.Site
         // If we're active but we're on a page that isn't directly supported, redirect to
         // a supported page.  This should be synced with Startup.refresh_disabled_ui.
         if(this.getDataSourceForUrl(ppixiv.plocation) == null)
-            args = new helpers.args("/ranking.php?mode=daily#ppixiv");
+            args = new helpers.args("/bookmark_new_illust.php#ppixiv");
 
         // If the URL hash doesn't start with #ppixiv, the page was loaded with the base Pixiv
         // URL, and we're active by default.  Add #ppixiv to the URL.  If we don't do this, we'll
