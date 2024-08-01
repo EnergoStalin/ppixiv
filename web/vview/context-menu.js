@@ -1124,9 +1124,9 @@ export default class ContextMenu extends Widget
                 //
                 // It would be better to check if we're following publically or privately to match the hotkey, but
                 // Pixiv doesn't include that information.
-                let followPrivately = null;
+                let followPrivately = ppixiv.settings.get("bookmark_privately_by_default");
                 if(e.altKey)
-                    followPrivately = true;
+                    followPrivately = !followPrivately;
 
                 if(userInfo.isFollowed)
                 {
