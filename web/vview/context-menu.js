@@ -1034,20 +1034,7 @@ export default class ContextMenu extends Widget
 
         if(e.key.toUpperCase() == "G")
         {
-            navigate((mediaInfo) => {
-                let seriesId = mediaInfo?.seriesNavData?.seriesId;
-
-                if(seriesId != null)
-                {
-                    let args = new helpers.args("/", ppixiv.plocation);
-                    args.path  = `/user/${mediaInfo.userId}/series/${seriesId}`;
-                    return args.url.toString();
-                }
-                else
-                {
-                    return getUrlForMediaId(mediaInfo?.mediaId, { manga: true }).url.toString();
-                }
-            }, true);
+            navigate((mediaInfo) => getUrlForMediaId(mediaInfo?.mediaId, { manga: true }).url.toString(), true);
             return true;
         }
         
