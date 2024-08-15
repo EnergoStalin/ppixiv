@@ -70,3 +70,13 @@ overseer.register_template({
     }
   end
 })
+
+overseer.register_template({
+  name = 'install git',
+  builder = function()
+    return {
+      name = 'xdg-open',
+      cmd = ' xdg-open https://github.com/EnergoStalin/ppixiv/releases/latest/download/ppixiv-main.user.js'
+    }
+  end
+})
