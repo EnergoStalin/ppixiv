@@ -42,13 +42,12 @@ from ..util.paths import open_path, PathBase
 from ..util.misc import TransientWriteConnection
 
 log = logging.getLogger(__name__)
+natsort_key = natsort.natsort_keygen(alg=natsort.IGNORECASE)
 
 def _create_natsort():
     """
     Create our natural sort key.
     """
-    # We only need to create the natsort key function once.
-    natsort_key = natsort.natsort_keygen(alg=natsort.IGNORECASE)
     def key(entry):
         return not entry.is_dir(), *natsort_key(entry.stem)
 
@@ -71,11 +70,11 @@ def _create_natsort_pages_reversed():
     This sort actually does the opposite, and just reverses the pages within each group.  To
     get the correct affect, use it as a reverse sort.
     """
-    natsort_key = _create_natsort()
-
     # Look for "prefix #123...".
     pattern = re.compile(r'(.* #)(\d+)(.*)')
     def reverse_pages(entry):
+        entry_with_stem = entry
+
         match = pattern.match(entry.stem)
         if not entry.is_dir() and match:
             # natsort doesn't handle negative numbers, so we can't just invert the page number.
@@ -83,9 +82,9 @@ def _create_natsort_pages_reversed():
             page = int(match[2])
             suffix = match[3]
             reversed_filename = f'{prefix}{1000000000000000 - page}{suffix}'
-            entry = entry.with_stem(reversed_filename)
+            entry_with_stem = entry.with_stem(reversed_filename)
 
-        return natsort_key(entry)
+        return not entry.is_dir(), *natsort_key(entry_with_stem.stem)
 
     return reverse_pages
 
@@ -319,14 +318,14 @@ class Library:
         This currently doesn't remove bookmarks from the database that no longer exist.
         """
         if paths is None:
-            paths = self.mounts
-        log.info('Initializing library: %s' % ', '.join(paths))
+            paths = list(self.mounts.values())
+        log.info('Initializing library: %s' % ', '.join(str(path) for path in paths))
         start = time.time()
 
         # Scan for metadata files.
         log.info(f'Finding bookmarks...')
         all_metadata_files = []
-        for path in paths.values():
+        for path in paths:
             # Find all metadata files.
             for result in windows_search.search(
                     paths=[str(path)],
@@ -345,7 +344,7 @@ class Library:
             await asyncio.sleep(0)
 
         end = time.time()
-        log.info(f'Indexing {", ".join(paths)} took %.2f seconds' % (end-start))
+        log.info(f'Indexing {", ".join(str(path) for path in paths)} took %.2f seconds' % (end-start))
 
     async def refresh(self, *, paths=None):
         """
@@ -997,7 +996,12 @@ class Library:
         # Create the Windows search.
         if use_windows_search:
             order = sort_order_info['windows'] if sort_order_info else None
-            windows_search_iter = windows_search.search(paths=[str(path) for path in paths], order=order, timeout=windows_search_timeout, **search_options)
+            order_fs = sort_order_info['fs'] if sort_order_info else None
+            windows_search_iter = windows_search.search(paths=[str(path) for path in paths],
+                order=order,
+                order_fs=order_fs,
+                timeout=windows_search_timeout,
+                **search_options)
         else:
             windows_search_iter = []
 
@@ -1016,7 +1020,7 @@ class Library:
                 # This is just a signal that the Windows search timed out.  We only enable timeouts
                 # for shuffled searches, in case they match tons of results.
                 return None
-            elif isinstance(result, windows_search.SearchDirEntry):
+            elif isinstance(result, os.DirEntry) or isinstance(result, windows_search.SearchDirEntry):
                 # log.info('Search result from Windows:', result.path)
                 if result.path in seen_paths:
                     return
@@ -1025,7 +1029,7 @@ class Library:
                 # Get a fast placeholder entry for this result.  This doesn't hit the database
                 # or read the file.
                 path = open_path(result.path)
-                return self._get_entry_from_path(path, populate=False, extra_metadata=result.metadata)
+                return self._get_entry_from_path(path, populate=False, extra_metadata=getattr(result, 'metadata', None))
             else:
                 # log.info('Search result from database:', entry['id'], entry['path_lowercase'])
                 if str(result['path']) in seen_paths:
@@ -1047,7 +1051,7 @@ class Library:
                 if item is windows_search.SearchTimeout:
                     # This is ignored, so it doesn't matter where it goes.
                     return 0
-                elif isinstance(item, windows_search.SearchDirEntry):
+                elif isinstance(item, os.DirEntry) or isinstance(item, windows_search.SearchDirEntry):
                     return not item.is_dir()
                 else:
                     return not item['is_directory']

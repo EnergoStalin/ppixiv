@@ -5,13 +5,13 @@
 # isn't worth it.
 
 import aiohttp, errno, hashlib, logging, json, os
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from ..util import misc
 from pprint import pprint
 
 log = logging.getLogger(__name__)
 
-class Auth:
+class Settings:
     def __init__(self, filename):
         self.filename = Path(filename)
         self.load()
@@ -58,7 +58,7 @@ class Auth:
             'admin': True,
             'virtual': True,
         }
-        return User(user, auth=self)
+        return User(user, settings=self)
 
     def get_user(self, username):
         assert '|' not in username
@@ -68,7 +68,7 @@ class Auth:
             if user.get('disabled'):
                 continue
             if user.get('username') == username:
-                return User(user, auth=self)
+                return User(user, settings=self)
         return None
 
     # If token is valid, return the user, otherwise return None.
@@ -91,10 +91,40 @@ class Auth:
 
         return user
 
+    def get_folders(self):
+        folders = []
+        for folder in self.data.get('folders', []):
+            name = folder.get('name')
+            path = folder.get('path')
+
+            path = Path(path)
+            path = path.resolve()
+            folders.append({
+                'name': name,
+                'path': path,
+            })
+        return folders
+    
+    def filesystem_path_to_folder(self, path):
+        """
+        If path is within a folder, return its path relative to the folder.  Otherwise,
+        return path.
+        """
+        resolved_path = Path(path).resolve()
+        for folder in self.get_folders():
+            try:
+                relative_path = resolved_path.relative_to(folder['path'])
+            except ValueError:
+                continue
+
+            return PurePosixPath('/') / folder['name'] / relative_path
+
+        return path
+
 class User:
-    def __init__(self, info, auth):
+    def __init__(self, info, settings):
         self.info = info
-        self.auth = auth
+        self.settings = settings
 
     @property
     def username(self):
@@ -116,7 +146,7 @@ class User:
         hashed_password = hashlib.sha1((password + salt).encode('utf-8')).hexdigest()
         encoded_hashed_password = salt + '|' + hashed_password
         self.info['password'] = encoded_hashed_password
-        self.auth.save()
+        self.settings.save()
 
     def check_password(self, password):
         # If the user has no password, this is a guest account that doesn't require one.
@@ -134,7 +164,7 @@ class User:
         
         tokens.append(token)
         tokens = tokens[:-5]
-        self.auth.save()
+        self.settings.save()
         return token
 
     def clear_tokens(self, *, except_for=None):
@@ -149,7 +179,7 @@ class User:
         else:
             self.info['tokens'] = []
 
-        self.auth.save()
+        self.settings.save()
 
     def check_token(self, token):
         if token.count('|') != 1:
@@ -212,7 +242,7 @@ class User:
             return None
 
 def test():
-    auth = Auth('data/auth.json')
+    auth = Settings('data/auth.json')
     user = auth.get_user('user')
     user.set_password('foo')
     assert user.check_password('foo')
