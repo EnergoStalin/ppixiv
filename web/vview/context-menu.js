@@ -844,6 +844,35 @@ export default class ContextMenu extends Widget
             }
         }
 
+        async function navigate(pcallback, requestFullMediaInfo = false)
+        {
+            if(mediaId == null)
+                return;
+
+            let mediaInfo = await ppixiv.mediaCache.getMediaInfo(mediaId, { full: requestFullMediaInfo });
+            let args = new helpers.args(await pcallback(mediaInfo));
+
+            if(e.shiftKey)
+            {
+                window.open(args.toString(), "_blank");
+                return;
+            }
+
+            helpers.navigate(args, { scrollToTop: true });
+        }
+
+        if(e.key == "j")
+        {
+            navigate((mediaInfo) => getUrlForMediaId(mediaInfo?.mediaId, { manga: true }).url.toString(), true);
+            return true;
+        }
+                
+        if(e.key == "k")
+        {
+            navigate((mediaInfo) => `/users/${mediaInfo.userId}#ppixiv`);
+            return true;
+        }
+
         // All of these hotkeys require Ctrl.
         if(!e.ctrlKey)
             return;
@@ -941,38 +970,9 @@ export default class ContextMenu extends Widget
             return true;
         }
 
-        async function navigate(pcallback, requestFullMediaInfo = false)
-        {
-            if(mediaId == null)
-                return;
-
-            let mediaInfo = await ppixiv.mediaCache.getMediaInfo(mediaId, { full: requestFullMediaInfo });
-            let args = new helpers.args(await pcallback(mediaInfo));
-
-            if(e.shiftKey)
-            {
-                window.open(args.toString(), "_blank");
-                return;
-            }
-
-            helpers.navigate(args, { scrollToTop: true });
-        }
-
         if(e.key.toUpperCase() == "I")
         {
             navigate((mediaInfo) => `/bookmark_detail.php?illust_id=${mediaInfo.illustId}#ppixiv?recommendations=1`);
-            return true;
-        }
-
-        if(e.key.toUpperCase() == "G")
-        {
-            navigate((mediaInfo) => getUrlForMediaId(mediaInfo?.mediaId, { manga: true }).url.toString(), true);
-            return true;
-        }
-        
-        if(e.key.toUpperCase() == "U")
-        {
-            navigate((mediaInfo) => `/users/${mediaInfo.userId}#ppixiv`);
             return true;
         }
 

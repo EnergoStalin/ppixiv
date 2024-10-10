@@ -609,7 +609,7 @@ export default class ScreenIllust extends Screen
             return;
         switch(e.key)
         {
-        case "[":
+        case "h":
         case "ArrowLeft":
         case "ArrowUp":
         case "PageUp":
@@ -619,7 +619,7 @@ export default class ScreenIllust extends Screen
             this.navigateToNext(false, { manga: e.shiftKey? "skip-to-first":"normal" });
             break;
 
-        case "]":
+        case "l":
         case "ArrowRight":
         case "ArrowDown":
         case "PageDown":
