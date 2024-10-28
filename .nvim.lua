@@ -1,5 +1,15 @@
 local overseer = require('overseer')
 
+local default = {
+  {
+    'on_complete_dispose',
+    require_view = { 'FAILURE', },
+    timeout = 10
+  },
+  'unique',
+  'default',
+}
+
 overseer.register_template({
   name = 'build',
   builder = function()
@@ -7,10 +17,7 @@ overseer.register_template({
       name = 'build',
       cmd = 'python ./build.py',
       cwd = vim.fn.getcwd(),
-      components = {
-        'unique',
-        'default',
-      }
+      components = default,
     }
   end,
 })
@@ -22,16 +29,14 @@ overseer.register_template({
       name = 'install',
       cmd = 'firefox ./output/ppixiv-main.user.js',
       cwd = vim.fn.getcwd(),
-      components = {
-        'unique',
-        'default',
+      components = vim.tbl_extend('force', default, {
         {
           'dependencies',
           task_names = {
             'build'
           }
         },
-      }
+      })
     }
   end,
 })
@@ -43,10 +48,15 @@ overseer.register_template({
   builder = function()
     return {
       name = 'adb open',
+      components = default,
       strategy = {
         "orchestrator",
         tasks = {
-          { 'AdbYandexBrowserOpen', url = 'http://%local%:8080/ppixiv-main.user.js' }
+          {
+            'AdbYandexBrowserOpen',
+            url = 'http://%local%:8080/ppixiv-main.user.js',
+            components = default,
+          }
         },
       },
     }
@@ -58,12 +68,14 @@ overseer.register_template({
   builder = function()
     return {
       name = 'adb open',
+      components = default,
       strategy = {
         "orchestrator",
         tasks = {
           {
             'AdbYandexBrowserOpen',
-            url = 'https://github.com/EnergoStalin/ppixiv/releases/latest/download/ppixiv-main.user.js'
+            url = 'https://github.com/EnergoStalin/ppixiv/releases/latest/download/ppixiv-main.user.js',
+            components = default,
           }
         },
       },
@@ -76,7 +88,8 @@ overseer.register_template({
   builder = function()
     return {
       name = 'xdg-open',
-      cmd = ' xdg-open https://github.com/EnergoStalin/ppixiv/releases/latest/download/ppixiv-main.user.js'
+      cmd = ' xdg-open https://github.com/EnergoStalin/ppixiv/releases/latest/download/ppixiv-main.user.js',
+      components = default,
     }
   end
 })
