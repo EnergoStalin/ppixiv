@@ -437,7 +437,7 @@ class TagSearchDropdownWidget extends widget
                 // If this is a navigation the input box will be filled automatically, but clicking an
                 // entry matching the current search won't navigate.  Fill in the input box with the search
                 // even if the click doesn't trigger navigation.
-                this._inputElement.value = entry.dataset.tag;
+                this._setInputValue(entry, e.altKey === true);
 
                 return;
             }
@@ -977,6 +977,11 @@ class TagSearchDropdownWidget extends widget
         return section;
     }
 
+    _setInputValue(entry, additive = false) {
+        this._inputElement.value = `${(additive ? this._inputElement.value : "").trim()} ${entry.dataset.tag.trim()}`.trim();
+        entry.href = helpers.getArgsForTagSearch(this._inputElement.value, ppixiv.plocation);
+    }
+
     // Select the next or previous entry in the dropdown.
     move(down)
     {
@@ -1021,7 +1026,7 @@ class TagSearchDropdownWidget extends widget
             // impossible to tell what triggered it: this.navigating will be false by the time
             // we see it.   Work around this with a timer to disable autocomplete briefly.
             this._disableAutocompleteUntil = Date.now() + 50;
-            this._inputElement.value = newEntry.dataset.tag;
+            this._setInputValue(newEntry);
         } finally {
             this.navigating = false;
         }
