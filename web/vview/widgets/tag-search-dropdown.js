@@ -980,6 +980,15 @@ class TagSearchDropdownWidget extends widget
     _setInputValue(entry, additive = false) {
         this._inputElement.value = `${(additive ? this._inputElement.value : "").trim()} ${entry.dataset.tag.trim()}`.trim();
         entry.href = helpers.getArgsForTagSearch(this._inputElement.value, ppixiv.plocation);
+
+        // Trigger navigation
+        this._inputElement.focus()
+        this._inputElement.dispatchEvent(new KeyboardEvent("keydown", {
+            key: "Enter",
+            code: "Enter",
+            keyCode: 13,
+            bubbles: true
+        }))
     }
 
     // Select the next or previous entry in the dropdown.
