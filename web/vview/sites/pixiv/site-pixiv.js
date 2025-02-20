@@ -169,17 +169,19 @@ export default class SitePixiv extends Site.Site
         if(globalData == null)
             return false;
 
+        const userData = (globalData?.userData ?? globalData.gaUserData)
+
         // Discard this if it doesn't have login info.
-        if(globalData.userData == null)
+        if(userData == null)
             return false;
 
         this._initGlobalData({
             csrfToken: globalData.token,
-            userId: globalData.userData.id ,
-            premium: globalData.userData.premium,
+            userId: userData.id,
+            premium: userData.premium,
             mutes: globalData.mute,
-            hideAiWorks: globalData.userData.hideAiWorks,
-            contentMode: globalData.userData.xRestrict,
+            hideAiWorks: userData.hideAiWorks,
+            contentMode: userData.xRestrict,
             pixivTests,
             recaptchaKey: globalData?.miscData?.grecaptcha?.recaptchaEnterpriseScoreSiteKey,
         });
