@@ -169,7 +169,7 @@ export default class SitePixiv extends Site.Site
         if(globalData == null)
             return false;
 
-        const userData = (globalData?.userData ?? globalData.gaUserData)
+        const userData = globalData.userData ?? globalData.gaUserData
 
         // Discard this if it doesn't have login info.
         if(userData == null)
