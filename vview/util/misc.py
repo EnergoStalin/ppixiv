@@ -7,7 +7,7 @@ from pprint import pprint
 import urllib.parse
 
 from ..util.paths import open_path
-from ..util.tiff import get_tiff_metadata
+from ..util.tiff import get_tiff_metadata, get_xmp_metadata
 from .video_metadata import mp4, mkv, gif
 
 log = logging.getLogger(__name__)
@@ -129,8 +129,6 @@ exif_tag_ids = { value: key for key, value in ExifTags.TAGS.items() }
 def read_metadata(f, mime_type):
     """
     Parse basic metadata from a file.
-
-    This is currently only implemented for JPEGs.
     """
     if mime_type.startswith('video/'):
         if mime_type == 'video/mp4':
@@ -185,20 +183,33 @@ def read_metadata(f, mime_type):
     result['height'] = img.size[1]
     result['comment'] = img.info.get('parameters') or img.info.get('Description') or ''
 
-    # PIL's parser for PNGs is very slow, so only support metadata from JPEG for now.
+    # If we didn't get a description from the comment or description, see if we can get
+    # one from XMP data.
+    if not result['comment']:
+        xmp_data = img.info.get('xmp')
+        if xmp_data:
+            get_xmp_metadata(xmp_data, result)
+
+    # PIL's parser for PNGs is very slow, so only support EXIF metadata from JPEG for now.
     if mime_type == 'image/jpeg' and hasattr(img, '_getexif'):
         exif_dict = img._getexif()
         if exif_dict is None:
             exif_dict = { }
 
         def get_exif_string_tag(name, exif_name):
+            if result.get(name):
+                return
+
             data = exif_dict.get(exif_tag_ids[exif_name])
             if not data:
                 return
 
-            try:
-                data = data.decode('UTF-16LE')
-            except UnicodeDecodeError:
+            if isinstance(data, bytes):
+                try:
+                    data = data.decode('UTF-16LE')
+                except UnicodeDecodeError:
+                    return
+            elif not isinstance(data, str):
                 return
 
             # These are null-terminated.
@@ -207,6 +218,7 @@ def read_metadata(f, mime_type):
 
         get_exif_string_tag('title', 'XPTitle')
         get_exif_string_tag('comment', 'XPComment')
+        get_exif_string_tag('comment', 'ImageDescription')
         get_exif_string_tag('artist', 'XPAuthor')
         get_exif_string_tag('tags', 'XPKeywords')
 
