@@ -158,17 +158,10 @@ export default class TagTranslations
     // Given a tag search, return a translated search.
     async translateTagList(tags, language)
     {
-        // Pull out individual tags, removing -prefixes.
-        let splitTags = helpers.pixiv.splitSearchTags(tags);
-        let tagList = [];
-        for(let tag of splitTags)
-        {
-            let [prefix, unprefixedTag] = helpers.pixiv.splitTagPrefixes(tag);
-            tagList.push(unprefixedTag);
-        }
+        const splitTags = tags instanceof Array ? tags : helpers.pixiv.splitSearchTags(tags)
 
         // Get translations.
-        let translatedTags = await this.getTranslations(tagList, language);
+        let translatedTags = await this.getTranslations(splitTags, language);
 
         // Put the search back together.
         let result = [];

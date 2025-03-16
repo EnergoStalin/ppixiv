@@ -1372,6 +1372,12 @@ export class OpenWidgets extends EventTarget
     {
         return this._openWidgets;
     }
+
+    // Pull out individual tags, removing -prefixes.
+    splitSearchTags(searchTags) {
+        return this.splitSearchTags(searchTags)
+            .map(tag => this.splitTagPrefixes(tag)[1]);
+    }
 }
 
 // These are used all over the place, so we add them here to avoid having to import them
