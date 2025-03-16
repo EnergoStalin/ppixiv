@@ -1933,6 +1933,8 @@ body.hide-r18g .r18g { display: none; }
     flex: 1;
     padding: 6px 10px;
 
+    overflow-x: auto;
+
     outline: 1px solid var(--input-outline);
     &:focus-within { outline: 1px solid var(--input-outline-focused); }
 
