@@ -68,7 +68,6 @@ function createSettingsWidget({ globalOptions })
                 setting: "copy_original_tags",
                 explanationEnabled: "Copies original japaneese tags behind translations",
                 explanationDisabled: "Default copy behavior",
-                onclick: () => location.reload()
             });
         },
 
