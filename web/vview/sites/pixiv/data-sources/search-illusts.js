@@ -109,44 +109,54 @@ export default class DataSource_Search extends DataSource
             return
         }
 
-        const copyOriginalTags = ppixiv.settings.get("copy_original_tags");
-        console.log(copyOriginalTags);
-        const currentTags = helpers.pixiv.splitSearchTags(this._searchTags);
-        const translatedTags = await ppixiv.tagTranslations.translateTagList(currentTags, "en");
-        let tagList = document.createElement("vv-container");
+        const originalTags = helpers.pixiv.splitSearchTags(this._searchTags);
+        const translatedTags = await ppixiv.tagTranslations.translateTagList(originalTags, "en");
+        const cssMap = {
+            "(": "paren",
+            ")": "paren",
+            "or": "or",
+        };
+
+        let container = document.createElement("vv-container");
         for(let i = 0; i < translatedTags.length; i++)
         {
-            let tag = translatedTags[i];
-            // Force "or" lowercase.
-            if(tag.toLowerCase() == "or")
-                tag = "or";
-            
-            let span = document.createElement("span");
-            span.innerText = tag;
-            span.classList.add("word");
-            if(tag == "or")
-                span.classList.add("or");
-                else if(tag == "(" || tag == ")")
-                {
-                    span.classList.add("paren");
-                }
-                else
-                {
-                    span.classList.add("tag");
-                    if(copyOriginalTags)
-                        span.addEventListener("copy", (e) => this.tagCopyHandler(e, currentTags[i]));
-                }
-            
-            tagList.appendChild(span);
+            let word = translatedTags[i]
+
+            if(word.toLowerCase() === "or") word = "or"
+
+            let cssClass = cssMap[word];
+            let isTag = false;
+
+            if (!cssClass) {
+                cssClass = "tag";
+                isTag = true;
+            }
+
+            let tag = document.createElement(isTag ? "button" : "span");
+            tag.classList.add("word", cssClass);
+            tag.innerText = word;
+
+            if (isTag)
+                tag.addEventListener("click", (e) => this.onTagClicked(e, originalTags[i], translatedTags[i]));
+
+            container.appendChild(tag);
         }
 
         this.title += translatedTags.join(" ");
-        this.displayingTags = tagList;
+        this.displayingTags = container;
     }
 
-    tagCopyHandler(e, tag) {
-        if(e.clipboardData) e.clipboardData.setData('text/plain', tag);
-        else {
+    onTagClicked(e, originalTag, translatedTag) {
+        const copy = (e.ctrlKey ^ ppixiv.settings.get("copy_original_tags")) ? originalTag : translatedTag
+
+        if (navigator.clipboard)
+        {
+            navigator.clipboard.writeText(copy).catch(function(err) {
+                console.error('Unable to copy text: ', err);
+            });
+        }
+        else
+        {
             console.warn("event clipboardData unsupported cannot replace to original tag");
             return
         }
