@@ -61,16 +61,6 @@ function createSettingsWidget({ globalOptions })
             });
         },
 
-        copyOriginalTags: () => {
-            return new MenuOptionToggleSetting({
-                ...globalOptions,
-                label: "Copy original tag",
-                setting: "copy_original_tags",
-                explanationEnabled: "Copies original japaneese tags behind translations",
-                explanationDisabled: "Default copy behavior",
-            });
-        },
-
         invertPopupHotkey: () => {
             return new MenuOptionToggleSetting({
                 ...globalOptions,
@@ -116,6 +106,18 @@ function createSettingsWidget({ globalOptions })
                 label: "Show tag translations",
                 setting: "disable-translations",
                 invertDisplay: true,
+            });
+        },
+
+        copyTranslatedTags: () => {
+            const invertNotice =  !ppixiv.mobile ? " temporarily invert with Ctrl" : "";
+            return new MenuOptionToggleSetting({
+                ...globalOptions,
+                label: "Copy",
+                setting: "copy_translated_tags",
+                explanationEnabled: `Japaneese tag mode${invertNotice}`,
+                explanationDisabled: `Translated tag mode${invertNotice}`,
+                shouldBeVisible: () => !ppixiv.settings.get("disable-translations"),
             });
         },
 
@@ -710,6 +712,7 @@ export class SettingsDialog extends DialogWidget
                     settingsWidgets.nativeLogin();
 
                 settingsWidgets.disableTranslations();
+                settingsWidgets.copyTranslatedTags();
 
                 if(!ppixiv.native && !ppixiv.mobile)
                     settingsWidgets.disabledByDefault();
@@ -744,8 +747,6 @@ export class SettingsDialog extends DialogWidget
                 // a PWA.
                 if(ppixiv.native || !ppixiv.mobile)
                     settingsWidgets.stageSlideshow();
-
-                settingsWidgets.copyOriginalTags();
             },
 
             whatsNew: () => {
