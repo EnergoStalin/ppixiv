@@ -36,6 +36,8 @@ export class TagSearchBoxWidget extends widget
 
         this._inputElement = this.root.querySelector(".input-field-container > input");
 
+        this.setWORDSelect(this._inputElement);
+
         this.querySelector(".edit-search-button").addEventListener("click", (e) => {
             this._dropdownOpener.visible = true;
             this._dropdownOpener.dropdown.editing = !this._dropdownOpener.dropdown.editing;
@@ -85,6 +87,69 @@ export class TagSearchBoxWidget extends widget
         // Search submission:
         helpers.inputHandler(this._inputElement, this._submitSearch);
         this.root.querySelector(".search-submit-button").addEventListener("click", this._submitSearch);
+    }
+
+    /**
+     * @param {HTMLInputElement} input
+     */
+    setWORDSelect(input) {
+        function fibHash(x, y) {
+            const GOLDEN_RATIO = 0x9e3779b9; // 32-bit golden ratio
+            return ((x ^ (y * GOLDEN_RATIO)) >>> 0);
+        }
+
+        function debouncer(ms) {
+            let version = 0;
+            return async function() {
+                const currentVersion = ++version;
+                await new Promise(r => window.realSetTimeout(r, ms));
+                return currentVersion === version;
+            }
+        }
+
+        function hasher() {
+            let hash = 0;
+            return function(...args) {
+                const newHash = args.reduce((p, c) => fibHash(p, c), 0)
+                if(hash === newHash) return false;
+                hash = newHash;
+
+                return true
+            }
+        }
+
+        const debounce = debouncer(10);
+        let hashchanged = hasher();
+        document.addEventListener("selectionchange", async function() {
+            if (document.activeElement !== input) return;
+
+            if(
+                // Debounce event to not fire too quickly allowing system updates
+                !await debounce() ||
+                // Ignore event if selection not actually changed
+                !hashchanged(
+                    input.selectionStart,
+                    input.selectionEnd
+                )
+            ) return;
+
+            // Select whole group if selection contains brackets
+            const includeGroup = input.value.substring(
+                input.selectionStart,
+                input.selectionEnd
+            ).search(/[\(\)]/) !== -1;
+
+            const [start, end] = includeGroup ? ["(", ")"] : [" ", " "];
+            const [offstart, offend] = includeGroup ? [0, 1] : [1, 0];
+
+            const startPos = Math.max(0, input.value.lastIndexOf(start, input.selectionStart));
+            const endPos = Math.max(0, input.value.indexOf(end, input.selectionStart));
+
+            input.setSelectionRange(
+                startPos + offstart,
+                endPos + offend
+            );
+        });
     }
 
     // Hide the dropdowns if our tree becomes hidden.
