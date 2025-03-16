@@ -1137,6 +1137,11 @@ body.hide-r18g .r18g { display: none; }
                 color: #bbb;
             }
         }
+
+        .tag {
+          user-select: all !important;
+          -webkit-user-select: all !important;
+        }
     }
 
     // The navigation bar is fixed instead of sticky, since position: sticky gets

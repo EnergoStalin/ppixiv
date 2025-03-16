@@ -101,36 +101,57 @@ export default class DataSource_Search extends DataSource
     cacheSearchTitle = async() =>
     {
         this.title = "Search: ";
-        let tags = this._searchTags;
-        if(tags)
-        {
-            tags = await ppixiv.tagTranslations.translateTagList(tags, "en");
-            let tagList = document.createElement("vv-container");
-            for(let tag of tags)
-            {
-                // Force "or" lowercase.
-                if(tag.toLowerCase() == "or")
-                    tag = "or";
-                
-                let span = document.createElement("span");
-                span.innerText = tag;
-                span.classList.add("word");
-                if(tag == "or")
-                    span.classList.add("or");
-                else if(tag == "(" || tag == ")")
-                    span.classList.add("paren");
-                else
-                    span.classList.add("tag");
-                
-                tagList.appendChild(span);
-            }
 
-            this.title += tags.join(" ");
-            this.displayingTags = tagList;
+        if(!this._searchTags)
+        {
+            // Update our page title.
+            this.callUpdateListeners();
+            return
         }
-        
-        // Update our page title.
-        this.callUpdateListeners();
+
+        const copyOriginalTags = ppixiv.settings.get("copy_original_tags");
+        console.log(copyOriginalTags);
+        const currentTags = helpers.pixiv.splitSearchTags(this._searchTags);
+        const translatedTags = await ppixiv.tagTranslations.translateTagList(currentTags, "en");
+        let tagList = document.createElement("vv-container");
+        for(let i = 0; i < translatedTags.length; i++)
+        {
+            let tag = translatedTags[i];
+            // Force "or" lowercase.
+            if(tag.toLowerCase() == "or")
+                tag = "or";
+            
+            let span = document.createElement("span");
+            span.innerText = tag;
+            span.classList.add("word");
+            if(tag == "or")
+                span.classList.add("or");
+                else if(tag == "(" || tag == ")")
+                {
+                    span.classList.add("paren");
+                }
+                else
+                {
+                    span.classList.add("tag");
+                    if(copyOriginalTags)
+                        span.addEventListener("copy", (e) => this.tagCopyHandler(e, currentTags[i]));
+                }
+            
+            tagList.appendChild(span);
+        }
+
+        this.title += translatedTags.join(" ");
+        this.displayingTags = tagList;
+    }
+
+    tagCopyHandler(e, tag) {
+        if(e.clipboardData) e.clipboardData.setData('text/plain', tag);
+        else {
+            console.warn("event clipboardData unsupported cannot replace to original tag");
+            return
+        }
+
+        e.preventDefault()
     }
 
     async loadPageInternal(page)

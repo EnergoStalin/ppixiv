@@ -61,6 +61,17 @@ function createSettingsWidget({ globalOptions })
             });
         },
 
+        copyOriginalTags: () => {
+            return new MenuOptionToggleSetting({
+                ...globalOptions,
+                label: "Copy original tag",
+                setting: "copy_original_tags",
+                explanationEnabled: "Copies original japaneese tags behind translations",
+                explanationDisabled: "Default copy behavior",
+                onclick: () => location.reload()
+            });
+        },
+
         invertPopupHotkey: () => {
             return new MenuOptionToggleSetting({
                 ...globalOptions,
@@ -734,6 +745,8 @@ export class SettingsDialog extends DialogWidget
                 // a PWA.
                 if(ppixiv.native || !ppixiv.mobile)
                     settingsWidgets.stageSlideshow();
+
+                settingsWidgets.copyOriginalTags();
             },
 
             whatsNew: () => {
