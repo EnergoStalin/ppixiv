@@ -67,7 +67,7 @@ export default class Settings extends EventTarget
         this.configure("translation_language", { defaultValue: "ENG" });
 
         // Copy original tags in .search-title instead of translated
-        this.configure("copy_original_tags", { defaultValue: false });
+        this.configure("copy_translated_tags", { defaultValue: true });
 
         // Run any one-time settings migrations.
         this.migrate();

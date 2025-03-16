@@ -130,6 +130,18 @@ function createSettingsWidget({ globalOptions })
             });
         },
 
+        copyTranslatedTags: () => {
+            const invertNotice =  !ppixiv.mobile ? " temporarily invert with Ctrl" : "";
+            return new MenuOptionToggleSetting({
+                ...globalOptions,
+                label: "Copy",
+                setting: "copy_translated_tags",
+                explanationEnabled: `Japaneese tag mode${invertNotice}`,
+                explanationDisabled: `Translated tag mode${invertNotice}`,
+                shouldBeVisible: () => !ppixiv.settings.get("disable-translations"),
+            });
+        },
+
         thumbnailStyle: () => {
             return new MenuOptionOptionsSetting({
                 ...globalOptions,
@@ -721,6 +733,7 @@ export class SettingsDialog extends DialogWidget
                     settingsWidgets.nativeLogin();
 
                 settingsWidgets.disableTranslations();
+                settingsWidgets.copyTranslatedTags();
 
                 if(!ppixiv.native && !ppixiv.mobile)
                     settingsWidgets.disabledByDefault();

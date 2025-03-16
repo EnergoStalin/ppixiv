@@ -147,7 +147,7 @@ export default class DataSource_Search extends DataSource
     }
 
     onTagClicked(e, originalTag, translatedTag) {
-        const copy = (e.ctrlKey ^ ppixiv.settings.get("copy_original_tags")) ? originalTag : translatedTag
+        const copy = (e.ctrlKey ^ ppixiv.settings.get("copy_translated_tags")) ? originalTag : translatedTag
 
         if (navigator.clipboard)
         {
