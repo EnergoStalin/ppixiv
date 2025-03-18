@@ -133,21 +133,30 @@ export class TagSearchBoxWidget extends widget
                 )
             ) return;
 
-            // Select whole group if selection contains brackets
-            const includeGroup = input.value.substring(
-                input.selectionStart,
-                input.selectionEnd
-            ).search(/[\(\)]/) !== -1;
+            let startPos = input.value.lastIndexOf(" ", input.selectionStart);
+            let endPos = input.value.indexOf(" ", input.selectionEnd);
 
-            const [start, end] = includeGroup ? ["(", ")"] : [" ", " "];
-            const [offstart, offend] = includeGroup ? [0, 1] : [1, 0];
+            const char = input.value[input.selectionStart]
 
-            const startPos = Math.max(0, input.value.lastIndexOf(start, input.selectionStart));
-            const endPos = Math.max(0, input.value.indexOf(end, input.selectionStart));
+            let count = 1;
+            if (char === "(") {
+                for (endPos = input.selectionStart + 1; endPos < input.value.length && count > 0; endPos++) {
+                    const c = input.value[endPos];
+                    if (c === "(") count++;
+                    else if (c === ")") count--;
+                }
+            } else if (char === ")") {
+                for (startPos = Math.max(0, input.selectionStart - 1); startPos >= 0 && count > 0; startPos--) {
+                    const c = input.value[startPos];
+                    if (c === "(") count--;
+                    else if (c === ")") count++;
+                }
+                endPos++;
+            }
 
             input.setSelectionRange(
-                startPos + offstart,
-                endPos + offend
+                Math.max(0, startPos),
+                Math.max(0, endPos)
             );
         });
     }
