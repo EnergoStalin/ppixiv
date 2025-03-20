@@ -511,7 +511,7 @@ class TagSearchDropdownWidget extends widget
                 // If this is a navigation the input box will be filled automatically, but clicking an
                 // entry matching the current search won't navigate.  Fill in the input box with the search
                 // even if the click doesn't trigger navigation.
-                this._inputElement.value = entry.dataset.tag;
+                this._setInputValue(entry, e.shiftKey === true);
 
                 return;
             }
