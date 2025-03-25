@@ -114,7 +114,7 @@ export default class DialogWidget extends Widget
                                 </div>
                             </div>
 
-                            <span class=header-text></span>
+                            <button class="header-text copyable-text-button"></button>
 
                             <div class=center-header-helper></div>
                         </div>
@@ -126,6 +126,9 @@ export default class DialogWidget extends Widget
             `,
             ...options,
         });
+
+        this.root.querySelector(".header-text")
+            .addEventListener("click", (e) => navigator.clipboard.writeText(e.target.textContent));
 
         // Always hide the close button on mobile.
         if(window.ppixiv?.mobile)
