@@ -148,20 +148,7 @@ export default class DataSource_Search extends DataSource
 
     onTagClicked(e, originalTag, translatedTag) {
         const copy = (e.ctrlKey ^ ppixiv.settings.get("copy_translated_tags")) ? originalTag : translatedTag
-
-        if (navigator.clipboard)
-        {
-            navigator.clipboard.writeText(copy).catch(function(err) {
-                console.error('Unable to copy text: ', err);
-            });
-        }
-        else
-        {
-            console.warn("event clipboardData unsupported cannot replace to original tag");
-            return
-        }
-
-        e.preventDefault()
+        navigator.clipboard.writeText(copy);
     }
 
     async loadPageInternal(page)
