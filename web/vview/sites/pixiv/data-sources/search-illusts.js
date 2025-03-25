@@ -128,7 +128,7 @@ export default class DataSource_Search extends DataSource
             let isTag = false;
 
             if (!cssClass) {
-                cssClass = "tag";
+                cssClass = "copyable-text-button";
                 isTag = true;
             }
 

@@ -1116,15 +1116,6 @@ body.hide-r18g .r18g { display: none; }
     }
 
     .search-title {
-        // Now tag is a button cause mobile cant handle selections
-        .tag {
-            background: none;
-            border: none;
-            font: inherit;
-            color: inherit;
-            cursor: pointer;
-        }
-
         .word {
             padding: 0px 5px;
             vertical-align: middle;
@@ -4141,4 +4132,12 @@ svg.heart-image .delete {
 
 .menu-slider .slider {
     flex: 1;
+}
+
+.copyable-text-button {
+    background: none;
+    border: none;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
 }
