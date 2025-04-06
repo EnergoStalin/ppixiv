@@ -28,14 +28,7 @@ overseer.register_template({
     return {
       name = 'install',
       cmd = 'xdg-open http://127.0.0.1:8080/ppixiv-main.user.js',
-      components = vim.tbl_extend('force', default, {
-        {
-          'dependencies',
-          task_names = {
-            'build'
-          }
-        },
-      })
+      components = default,
     }
   end,
 })
