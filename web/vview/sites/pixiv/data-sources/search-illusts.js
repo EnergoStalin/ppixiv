@@ -133,10 +133,8 @@ export default class DataSource_Search extends DataSource
         this.callUpdateListeners();
 
         this.title += translatedTags.join(" ");
-        this.displayingTags = container;
 
-        if(ppixiv.mobile)
-            this.displayingTags.hidden = this.displayingTagsHidden ?? true;
+        this.displayingTags = container;
     }
 
     onTagClicked(e, originalTag, translatedTag) {
@@ -534,10 +532,10 @@ class UI extends Widget
         });
 
         this.buttonRow = this.root.querySelector(".box-button-row");
-        this.tagSearchBox.addEventListener("expand-foldables-toggle", () => {
-            this.buttonRow.hidden = !this.buttonRow.hidden
-            this.dataSource.displayingTagsHidden = this.buttonRow.hidden;
-        });
+        this.tagSearchBox.addEventListener(
+            "expand-foldables-toggle",
+            () => this.buttonRow.hidden = !this.buttonRow.hidden
+        );
 
         // Fill the search box with the current tag.
         //

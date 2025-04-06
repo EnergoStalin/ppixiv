@@ -12,7 +12,7 @@ export default class SearchUIMobile extends Widget
                 <div class=search-ui-mobile>
                     <div class=avatar-container style="float: right;"></div>
 
-                    <div class=search-title hidden></div>
+                    <div class=search-title></div>
                     <div class=data-source-ui></div>
                 </div>
             `
@@ -24,6 +24,8 @@ export default class SearchUIMobile extends Widget
             // Disable the avatar widget unless the data source enables it.
             visible: false,
         });
+
+        this.searchTitle = this.root.querySelector(".search-title");
     }
 
     setDataSource(dataSource)
@@ -51,6 +53,22 @@ export default class SearchUIMobile extends Widget
         }
     }
 
+    setToggleSearchTitle(title)
+    {
+        if(!ppixiv.mobile || typeof title !== "object") return;
+
+        const currentUi = this._currentDataSourceUi;
+        const tagSearchBox = currentUi.tagSearchBox;
+        let listener = this.$search_title_toggle_event_listener;
+
+        tagSearchBox.removeEventListener("expand-foldables-toggle", listener);
+        listener = () => title.hidden = !title.hidden;
+
+        title.hidden = currentUi.buttonRow.hidden;
+        tagSearchBox.addEventListener("expand-foldables-toggle", listener);
+        this.$search_title_toggle_event_listener = listener;
+    }
+
     refreshUi()
     {
         if(this.dataSource)
@@ -67,11 +85,7 @@ export default class SearchUIMobile extends Widget
         {
             let text = this.dataSource?.getDisplayingText();
             elementTitle.replaceChildren(text);
-
-            this._currentDataSourceUi?.tagSearchBox?.addEventListener(
-                "expand-foldables-toggle",
-                () => text.hidden = !text.hidden
-            );
+            this.setToggleSearchTitle(text);
         }
     }
 
