@@ -17,7 +17,7 @@ overseer.register_template({
       name = 'build',
       cmd = 'python ./build.py',
       cwd = vim.fn.getcwd(),
-      components = default,
+      components = vim.tbl_exten('force', default, { 'restart_on_save' }),
     }
   end,
 })
