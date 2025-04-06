@@ -647,9 +647,6 @@ export default class Actions
 
     static isDownloadTypeAvailable(downloadType, mediaInfo)
     {
-        if(ppixiv.mobile)
-            return false;
-
         // Single image downloading works for single images and manga pages.
         if(downloadType == "image")
             return mediaInfo.illustType != 2;
