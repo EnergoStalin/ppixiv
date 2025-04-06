@@ -12,7 +12,7 @@ export default class SearchUIMobile extends Widget
                 <div class=search-ui-mobile>
                     <div class=avatar-container style="float: right;"></div>
 
-                    <div class=search-title></div>
+                    <div class=search-title hidden></div>
                     <div class=data-source-ui></div>
                 </div>
             `
@@ -67,6 +67,11 @@ export default class SearchUIMobile extends Widget
         {
             let text = this.dataSource?.getDisplayingText();
             elementTitle.replaceChildren(text);
+
+            this._currentDataSourceUi?.tagSearchBox?.addEventListener(
+                "expand-foldables-toggle",
+                () => text.hidden = !text.hidden
+            );
         }
     }
 

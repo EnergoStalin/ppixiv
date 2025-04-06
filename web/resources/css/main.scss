@@ -1098,7 +1098,7 @@ body.hide-r18g .r18g { display: none; }
         .search-title {
             text-align: center;
             display: block;
-            max-height: 10vh;
+            max-height: 5em;
             overflow-y: auto;
         }
 
@@ -1961,10 +1961,6 @@ body.hide-r18g .r18g { display: none; }
 
 /* Search box in the menu: */
 .navigation-search-box {
-    .search-submit-button {
-        vertical-align: middle;
-        margin-left: -30px; /* overlap the search box */
-    }
     input.search-tags {
         width: 100%;
         padding-right: 30px; /* extra space for the submit button */

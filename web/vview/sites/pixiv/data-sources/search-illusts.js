@@ -144,6 +144,9 @@ export default class DataSource_Search extends DataSource
 
         this.title += translatedTags.join(" ");
         this.displayingTags = container;
+
+        if(ppixiv.mobile)
+            this.displayingTags.hidden = true;
     }
 
     onTagClicked(e, originalTag, translatedTag) {
@@ -305,7 +308,7 @@ class UI extends Widget
                     <vv-container class=tag-search-box-container></vv-container>
                 </div>
 
-                <div class=box-button-row>
+                <div class=box-button-row hidden>
                     ${ helpers.createBoxLink({label: "Ages",    classes: ["ages-button"] }) }
                     ${ helpers.createBoxLink({label: "Sort",    classes: ["sort-button"] }) }
                     ${ helpers.createBoxLink({label: "Type",    classes: [["search-type-button"]] }) }
@@ -539,6 +542,9 @@ class UI extends Widget
             container: this.querySelector(".tag-search-box-container"),
             dataSource: this.dataSource,
         });
+
+        this.buttonRow = this.root.querySelector(".box-button-row");
+        this.tagSearchBox.addEventListener("expand-foldables-toggle", () => this.buttonRow.hidden = !this.buttonRow.hidden);
 
         // Fill the search box with the current tag.
         //

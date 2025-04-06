@@ -24,8 +24,8 @@ export class TagSearchBoxWidget extends widget
                         ${ helpers.createIcon("bookmark") }
                     </span>
 
-                    <span class="search-submit-button right-side-button">
-                        ${ helpers.createIcon("search") }
+                    <span class="expand-filters-button right-side-button">
+                        ${ helpers.createIcon("arrow_drop_down") }
                     </span>
                 </div>
             </div>
@@ -86,7 +86,15 @@ export class TagSearchBoxWidget extends widget
 
         // Search submission:
         helpers.inputHandler(this._inputElement, this._submitSearch);
-        this.root.querySelector(".search-submit-button").addEventListener("click", this._submitSearch);
+
+        this.expandFiltersButton = this.querySelector(".expand-filters-button");
+        this.expandFiltersButton.addEventListener("click", () => {
+            this.expandFiltersButton.innerHTML = helpers.createIcon({
+                true: "arrow_drop_down",
+                false: "arrow_drop_up"
+            }[this.expandFiltersButton.firstChild.textContent === "arrow_drop_up"]);
+            this.dispatchEvent(new Event("expand-foldables-toggle"));
+        });
     }
 
     /**
