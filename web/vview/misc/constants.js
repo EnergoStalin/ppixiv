@@ -1,0 +1,1 @@
+var DRAG_THRESHOLD = 3;
