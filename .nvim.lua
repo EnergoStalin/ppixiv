@@ -17,7 +17,7 @@ overseer.register_template({
       name = 'build',
       cmd = 'python ./build.py',
       cwd = vim.fn.getcwd(),
-      components = vim.tbl_exten('force', default, { 'restart_on_save' }),
+      components = { 'restart_on_save', unpack(default) },
     }
   end,
 })
@@ -28,7 +28,7 @@ overseer.register_template({
     return {
       name = 'install',
       cmd = 'xdg-open http://127.0.0.1:8080/ppixiv-main.user.js',
-      components = default,
+      components = { { 'dependencies', task_names = {'build'} }, 'restart_on_save', unpack(default) }
     }
   end,
 })
