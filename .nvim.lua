@@ -1,5 +1,7 @@
 local overseer = require('overseer')
 
+local port = 8097
+
 local default = {
   {
     'on_complete_dispose',
@@ -27,13 +29,13 @@ overseer.register_template({
   builder = function()
     return {
       name = 'install',
-      cmd = 'xdg-open http://127.0.0.1:8080/ppixiv-main.user.js',
+      cmd = 'xdg-open http://127.0.0.1:' .. port .. '/ppixiv-main.user.js',
       components = { { 'dependencies', task_names = {'build'} }, 'restart_on_save', unpack(default) }
     }
   end,
 })
 
-overseer.run_template({ name = 'http', params = { cwd = vim.fn.getcwd(), path = './output/ppixiv-main.user.js', address = '0.0.0.0', port = 8080 } })
+overseer.run_template({ name = 'http', params = { cwd = vim.fn.getcwd(), path = './output/ppixiv-main.user.js', address = '0.0.0.0', port = port } })
 
 overseer.register_template({
   name = 'android install dev',
@@ -46,7 +48,7 @@ overseer.register_template({
         tasks = {
           {
             'AdbYandexBrowserOpen',
-            url = 'http://%local%:8080/ppixiv-main.user.js',
+            url = 'http://%local%:' .. port .. '/ppixiv-main.user.js',
             components = default,
           }
         },
