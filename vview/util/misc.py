@@ -8,7 +8,7 @@ import urllib.parse
 
 from ..util.paths import open_path
 from ..util.tiff import get_tiff_metadata, get_xmp_metadata
-from .video_metadata import mp4, mkv, gif
+from .video_metadata import mp4, mkv, gif, webp
 
 log = logging.getLogger(__name__)
 
@@ -171,6 +171,9 @@ def read_metadata(f, mime_type):
     if mime_type == 'image/tiff':
         return get_tiff_metadata(f)
 
+    if mime_type == 'image/webp':
+        return webp.get_webp_metadata(f)
+
     result = { }
 
     try:
@@ -182,6 +185,10 @@ def read_metadata(f, mime_type):
     result['width'] = img.size[0]
     result['height'] = img.size[1]
     result['comment'] = img.info.get('parameters') or img.info.get('Description') or ''
+
+    # Mark animated WebPs, so they can use ugoira_from_webp_animation.
+    if mime_type == 'image/webp' and getattr(img, "is_animated", False):
+        result['animation'] = True
 
     # If we didn't get a description from the comment or description, see if we can get
     # one from XMP data.

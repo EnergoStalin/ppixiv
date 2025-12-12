@@ -73,7 +73,7 @@ public:
     {
         // This isn't efficient and would need to be done differently if we need
         // to remove batches of images.
-        auto bucket = image->signature.Signature[color];
+        auto &bucket = image->signature.Signature[color];
         for(int coeff: image->signature.Signature[color])
         {
             auto bucket = buckets[coeff + maxCoeff];
@@ -140,6 +140,15 @@ void ImageIndex::RemoveImage(uint64_t id)
 {
     std::unique_lock L(lock);
     RemoveImageLocked(id);
+}
+
+void ImageIndex::RemoveAllImages()
+{
+    std::unique_lock L(lock);
+
+    m_AllImages.clear();
+    for(int channel = 0; channel < 3; ++channel)
+        m_pBuckets[channel] = make_shared<Buckets>();
 }
 
 void ImageIndex::RemoveImageLocked(uint64_t id)
