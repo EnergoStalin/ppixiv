@@ -366,7 +366,7 @@ export default class SitePixiv extends Site.Site
             return allDataSources.NewPostsByEveryone;
         else if(url.pathname == "/bookmark_new_illust.php" || url.pathname == "/bookmark_new_illust_r18.php")
             return allDataSources.NewPostsByFollowing;
-        else if(firstPathSegment == "tags")
+        else if(url.pathname == "/search")
             return allDataSources.SearchIllusts;
         else if(url.pathname == "/discovery")
             return allDataSources.Discovery;

@@ -375,7 +375,7 @@ class AppStartup
             return true; // new_illust
         else if(pathname == "/bookmark_new_illust.php" || pathname == "/bookmark_new_illust_r18.php")
             return true; // new_works_by_following
-        else if(firstPart == "tags")
+        else if(firstPart == "search")
             return true; // search
         else if(pathname == "/discovery")
             return true; // discovery

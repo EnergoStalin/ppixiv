@@ -556,17 +556,14 @@ export class helpers
         url = helpers.pixiv.getUrlWithoutLanguage(url);
 
         let type = helpers.pixiv.getPageTypeFromUrl(url);
-        if(type == "tags")
+        if(type != "search")
         {
-            // If we're on search already, just change the search tag, so we preserve other settings.
-            // /tags/tag/artworks -> /tag/new tag/artworks
-            let parts = url.pathname.split("/");
-            parts[2] = encodeURIComponent(tags);
-            url.pathname = parts.join("/");
-        } else {
-            // If we're not, change to search and remove the rest of the URL.
-            url = new URL("/tags/" + encodeURIComponent(tags) + "/artworks#ppixiv", url);
+            // If we're not already on search, change to search and remove the rest of the URL.
+            // If we are, preserve the URL so we keep search parameters.
+            url = new URL("/search?q=" + encodeURIComponent(tags) + "&s_mode=tag&type=artwork#ppixiv", url);
         }
+
+        url.searchParams.set("q", tags);
         
         // Don't include things like the current page in the URL.
         let args = helpers.getCanonicalUrl(url);

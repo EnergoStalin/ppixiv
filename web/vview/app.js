@@ -941,13 +941,13 @@ export default class App
             if(e.target.tagName != "A" || !e.target.hasAttribute("href"))
                 return;
 
-            // Only look at "/tags/TAG" URLs.
+            // Only look at /search URLs.
             let url = new URL(e.target.href);
             url = helpers.pixiv.getUrlWithoutLanguage(url);
 
             let parts = url.pathname.split("/");
             let firstPart = parts[1];
-            if(firstPart != "tags")
+            if(firstPart != "search")
                 return;
 
             let tag = helpers.pixiv.getSearchTagsFromUrl(url);

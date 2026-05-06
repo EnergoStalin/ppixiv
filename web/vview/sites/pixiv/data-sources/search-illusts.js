@@ -69,21 +69,6 @@ export default class DataSource_Search extends DataSource
         return helpers.pixiv.getSearchTagsFromUrl(this.url);
     }
 
-    // Return the search type from the URL.  This is one of "artworks", "illustrations"
-    // or "novels" (not supported).  It can also be omitted, which is the "top" page,
-    // but that gives the same results as "artworks" with a different page layout, so
-    // we treat it as "artworks".
-    get _searchType()
-    {
-        // ["", "tags", tag list, type]
-        let url = helpers.pixiv.getUrlWithoutLanguage(this.url);
-        let parts = url.pathname.split("/");
-        if(parts.length >= 4)
-            return parts[3];
-        else
-            return "artworks";
-    }
-
     startup()
     {
         super.startup();
@@ -142,25 +127,25 @@ export default class DataSource_Search extends DataSource
 
         // "artworks" and "illustrations" are different on the search page: "artworks" uses "/tag/TAG/artworks",
         // and "illustrations" is "/tag/TAG/illustrations?type=illust_and_ugoira".
-        let searchType = this._searchType;
-        let searchMode = this.getUrlSearchMode();
+        let searchType = this.url.searchParams.get("type");
         let apiSearchType = null;
-        if(searchMode == "all")
+
+        if(searchType == "artwork")
         {
-            // "artworks" doesn't use the type field.
+            // "artwork" doesn't use the type field.
             apiSearchType = "artworks";
         }
-        else if(searchMode == "illust")
+        else if(searchType == "illust_ugoira")
         {
             apiSearchType = "illustrations";
             args.type = "illust_and_ugoira";
         }
-        else if(searchMode == "manga")
+        else if(searchType == "manga")
         {
             apiSearchType = "manga";
             args.type = "manga";
         }
-        else if(searchMode == "ugoira")
+        else if(searchType == "ugoira")
         {
             apiSearchType = "illustrations";
             args.type = "ugoira";
@@ -176,6 +161,21 @@ export default class DataSource_Search extends DataSource
         {
             console.log("No search tags");
             return;
+        }
+
+        let searchMode = this.url.searchParams.get("s_mode");
+        if(searchMode == "tag")
+            args.s_mode = "s_tag";
+        else if(searchMode == "tag_full")
+            args.s_mode = "s_tag_full";
+        else if(searchMode == "tc")
+            args.s_mode = "s_tc";
+        else if(searchMode == "tag_tc")
+            args.s_mode = "s_tag_tc";
+        else
+        {
+            console.error("Invalid search mode:", searchMode);
+            args.s_mode = "s_tag";
         }
 
         let url = "/ajax/search/" + apiSearchType + "/" + encodeURIComponent(tag);
@@ -202,9 +202,9 @@ export default class DataSource_Search extends DataSource
         }
         ppixiv.tagTranslations.addTranslations(translations);
 
-        // /tag/TAG/illustrations returns results in body.illust.
-        // /tag/TAG/artworks returns results in body.illustManga.
-        // /tag/TAG/manga returns results in body.manga.
+        // /ajax/search/illustrations returns results in body.illust.
+        // /ajax/search/artworks returns results in body.illustManga.
+        // /ajax/search/manga returns results in body.manga.
         let illusts = body.illust || body.illustManga || body.manga;
         illusts = illusts.data;
 
@@ -223,32 +223,6 @@ export default class DataSource_Search extends DataSource
         return this.displayingTags ?? "Search works";
     };
 
-    // Return the search mode, which is selected by the "Type" search option.  This generally
-    // corresponds to the underlying page's search modes.
-    getUrlSearchMode()
-    {
-        // "/tags/tag/illustrations" has a "type" parameter with the search type.  This is used for
-        // "illust" (everything except animations) and "ugoira".
-        let searchType = this._searchType;
-        if(searchType == "illustrations")
-        {
-            let querySearchType = this.url.searchParams.get("type");
-            if(querySearchType == "ugoira") return "ugoira";
-            if(querySearchType == "illust") return "illust";
-
-            // If there's no parameter, show everything.
-            return "all";
-        }
-        
-        if(searchType == "artworks")
-            return "all";
-        if(searchType == "manga")
-            return "manga";
-
-        // Use "all" for unrecognized types.
-        return "all";
-    }
-
     // Return URL with the search mode set to mode.
     setUrlSearchMode(url, mode)
     {
@@ -263,7 +237,7 @@ export default class DataSource_Search extends DataSource
         else
             url.searchParams.delete("type");
 
-        let searchType = "artworks";
+        let searchType = "artwork";
         if(mode == "manga")
             searchType = "manga";
         else if(mode == "ugoira" || mode == "illust")
@@ -334,31 +308,18 @@ class UI extends Widget
             setupOptions:  { fields: {order: "popular_female_d"} }
         }]);
 
-        let urlFormat = "tags/tag/type";
         dataSource.setupDropdown(this.querySelector(".search-type-button"), [{
             createOptions: { label: "All",             dataset: { default: true } },
-            setupOptions: {
-                urlFormat,
-                fields: {"/type": "artworks", type: null},
-            }
+            setupOptions: { fields: {type: "artwork"} }
         }, {
             createOptions: { label: "Illustrations" },
-            setupOptions: {
-                urlFormat,
-                fields: {"/type": "illustrations", type: "illust"},
-            }
+            setupOptions: { fields: {type: "illust_ugoira"} }
         }, {
             createOptions: { label: "Manga" },
-            setupOptions: {
-                urlFormat,
-                fields: {"/type": "manga", type: null},
-            }
+            setupOptions: { fields: {type: "manga"} }
         }, {
             createOptions: { label: "Animations" },
-            setupOptions: {
-                urlFormat,
-                fields: {"/type": "illustrations", type: "ugoira"},
-            }
+            setupOptions: { fields: {type: "ugoira"} }
         }]);
 
         dataSource.setItem(this.root, {
@@ -372,15 +333,24 @@ class UI extends Widget
         if(ppixiv.pixivInfo.hideAiWorks)
             this.root.querySelector(`[data-type='hide-ai']`).hidden = true;
 
+        // The fields in the URL ("tc") and the fields in the API ("s_tc") don't match
+        // up (they used to).  We'll adjust the API parameters in loadPageInternal.
         dataSource.setupDropdown(this.querySelector(".search-mode-button"), [{
             createOptions: { label: "Tag",               dataset: { default: true } },
-            setupOptions: { fields: {s_mode: null}, defaults: {s_mode: "s_tag"} },
+            setupOptions: { fields: {s_mode: "tag"} },
         }, {
+            // On Pixiv's page, this mode goes to a legacy path-based URL scheme.  We
+            // don't do that.  This will cause this particular search mode to not match
+            // up with the underlying page's URLs, but this one's too obscure and annoying
+            // to bother with.
             createOptions: { label: "Exact tag match" },
-            setupOptions:  { fields: {s_mode: "s_tag_full"} },
+            setupOptions:  { fields: {s_mode: "tag_full"} },
         }, {
-            createOptions: { label: "Text search" },
-            setupOptions:  { fields: {s_mode: "s_tc"} },
+            createOptions: { label: "Title, Caption" },
+            setupOptions:  { fields: {s_mode: "tc"} },
+        }, {
+            createOptions: { label: "Tags, Title, Caption" },
+            setupOptions:  { fields: {s_mode: "tag_tc"} },
         }]);
 
         dataSource.setupDropdown(this.querySelector(".image-size-button"), [{
@@ -520,11 +490,10 @@ class UI extends Widget
                 let box = this.querySelector(".reset-search");
                 let url = new URL(this.dataSource.url);
                 let tag = helpers.pixiv.getSearchTagsFromUrl(url);
-                url.search = "";
-                if(tag == null)
-                    url.pathname = "/tags";
-                else
-                    url.pathname = "/tags/" + encodeURIComponent(tag) + "/artworks";
+                url.searchParams.set("s_mode", "tag");
+                url.searchParams.set("type", "artwork");
+                if(tag != null)
+                    url.searchParams.set("q", tag);
                 box.href = url;
 
                 return dropdown;
