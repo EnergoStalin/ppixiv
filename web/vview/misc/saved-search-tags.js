@@ -21,7 +21,12 @@ export default class SavedSearchTags
 {
     static data()
     {
-        return ppixiv.settings.get("recent-tag-searches") || [];;
+        let searches = ppixiv.settings.get("recent-tag-searches") || [];
+
+        // Nulls have snuck into this list before.  Not sure where that's happening,
+        // but filter them out.
+        searches = searches.filter(x => x != null);
+        return searches;
     }
 
     // Return a map of all recent and saved tags, mapping from group names to lists
@@ -65,7 +70,10 @@ export default class SavedSearchTags
             }
 
             for(let tag of tagsInGroup)
+            {
+                console.assert(tag != null);
                 data.push(tag);
+            }
         }
 
         ppixiv.settings.set("recent-tag-searches", data);
@@ -93,6 +101,9 @@ export default class SavedSearchTags
     // If tag is null, just create group if it doesn't exist.
     static add(tag, { group=null, addToEnd=true }={})
     {
+        if(tag == null)
+            throw new Error("tag must not be null");
+
         if(this._disableAddingSearchTags || tag == "")
             return;
 
