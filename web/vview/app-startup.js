@@ -377,6 +377,8 @@ class AppStartup
             return true; // new_works_by_following
         else if(firstPart == "search")
             return true; // search
+        else if(firstPart == "tags")
+            return true; // also search
         else if(pathname == "/discovery")
             return true; // discovery
         else if(pathname == "/discovery/users")

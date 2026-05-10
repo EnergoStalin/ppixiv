@@ -297,9 +297,20 @@ export default class SitePixiv extends Site.Site
     {
         let args = helpers.args.location;
 
+        // If we're on /tags/TAG, redirect to /search/q=TAG in exact tag search mode.  The
+        // site serves the exact same page for /tags/TAG and /search and routes between them
+        // based only on the search mode.  We don't do that, but redirect to /search so entering
+        // from /tags at least works.
+        let path = helpers.pixiv.getPathWithoutLanguage(args.path);
+        if(path.startsWith("/tags/"))
+        {
+            let tag = path.split("/")[2];
+            args = new helpers.args("/search?q=" + tag + "&s_mode=tag_full&type=artwork#ppixiv");
+        }
+
         // If we're active but we're on a page that isn't directly supported, redirect to
         // a supported page.  This should be synced with Startup.refresh_disabled_ui.
-        if(this.getDataSourceForUrl(ppixiv.plocation) == null)
+        if(this.getDataSourceForUrl(args.url) == null)
             args = new helpers.args("/ranking.php?mode=daily#ppixiv");
 
         // If the URL hash doesn't start with #ppixiv, the page was loaded with the base Pixiv
