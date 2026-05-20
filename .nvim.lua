@@ -47,7 +47,7 @@ overseer.register_template({
         "orchestrator",
         tasks = {
           {
-            'AdbYandexBrowserOpen',
+            'AdbLemurBrowserOpen',
             url = 'http://%local%:' .. port .. '/ppixiv-main.user.js',
             components = default,
           }
@@ -67,7 +67,7 @@ overseer.register_template({
         "orchestrator",
         tasks = {
           {
-            'AdbYandexBrowserOpen',
+            'AdbLemurBrowserOpen',
             url = 'https://github.com/EnergoStalin/ppixiv/releases/latest/download/ppixiv-main.user.js',
             components = default,
           }
