@@ -16,10 +16,9 @@ function getMainSearchMenuOptions()
         // only made visible when an artist is being viewed already.
         { label: "Artist",                 icon: "face",           url: "/users/1#ppixiv", visible: false, classes: ["artist-row", "disable-clicks"] },
 
-        // This weird URL is to work around Pixiv encoding their URLs in a silly way: we have
-        // to do this to set "artworks" without setting a tag.  The content type should be a
-        // query parameter, putting it in the path doesn't make any sense.
-        { label: "Search works",           icon: "search",          url: `/tags//artworks#ppixiv` },
+        // The s_mode and type arguments are always present on Pixiv's version of the page and it'll throw
+        // an error if they're not there.
+        { label: "Search works",           icon: "search",          url: `/search?s_mode=tag&type=artwork#ppixiv` },
         { label: "New works by following", icon: "photo_library",   url: "/bookmark_new_illust.php#ppixiv" },
         { label: "New works by everyone",  icon: "groups",          url: "/new_illust.php#ppixiv" },
     ];

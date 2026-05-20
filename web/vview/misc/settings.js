@@ -54,6 +54,7 @@ export default class Settings extends EventTarget
         this.configure("expand_manga_thumbnails", { defaultValue: false });
         this.configure("slideshow_framerate", { defaultValue: 60 });
         this.configure("animations_enabled", { defaultValue: true });
+        this.configure("debounce_wheel", { defaultValue: false });
 
         // If not null, this limits the size of loaded images.
         this.configure("image_size_limit", { defaultValue: ppixiv.mobile? 4000*4000:null });
@@ -181,6 +182,38 @@ export default class Settings extends EventTarget
             this.stickySettings[key] = result;
 
         return result;
+    }
+
+    // Get and set all settings, for export.
+    getAll()
+    {
+        // Return keys from localStorage instead of using our key list above, since
+        // we don't require that all settings be registered with configure().
+        let result = new Map();
+        for(let [storageKey, value] of Object.entries(localStorage))
+        {
+            if(!storageKey.startsWith("_ppixiv_"))
+                continue;
+
+            let key = storageKey.substring("_ppixiv_".length);
+
+            try {
+                value = JSON.parse(value);
+            } catch(e) {
+                console.warn(e);
+                console.log("Skipping invalid setting:", storageKey, value);
+                continue;
+            }
+
+            result.set(key, value);
+        }
+        return result;
+    }
+
+    setAll(settings)
+    {
+        for(let [key, value] of settings.entries())
+            this.set(key, value);
     }
 
     // Handle migrating settings that have changed.

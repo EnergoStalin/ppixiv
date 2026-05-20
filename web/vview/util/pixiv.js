@@ -158,12 +158,8 @@ export function makePixivLinksInternal(root)
 // Get the search tags from an "/en/tags/TAG" search URL.
 export function getSearchTagsFromUrl(url)
 {
-    url = getUrlWithoutLanguage(url);
-    let parts = url.pathname.split("/");
-
-    // ["", "tags", tag string, "search type"]
-    let tags = parts[2] || "";
-    return decodeURIComponent(tags);
+    url = new URL(url);
+    return url.searchParams.get("q");
 }
 
 // From a URL like "/en/tags/abcd", return "tags".
@@ -173,18 +169,6 @@ export function getPageTypeFromUrl(url)
     url = getUrlWithoutLanguage(url);
     let parts = url.pathname.split("/");
     return parts[1];
-}
-
-// The inverse of getArgsForTagSearch:
-export function getTagSearchFromArgs(url)
-{
-    url = getUrlWithoutLanguage(url);
-    let type = getPageTypeFromUrl(url);
-    if(type != "tags")
-        return null;
-
-    let parts = url.pathname.split("/");
-    return decodeURIComponent(parts[2]);
 }
 
 // Known image hosts.  These can be selected in settings.
