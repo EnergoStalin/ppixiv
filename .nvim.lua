@@ -35,7 +35,7 @@ overseer.register_template({
   end,
 })
 
-overseer.run_template({ name = 'http', params = { cwd = vim.fn.getcwd(), path = './output/ppixiv-main.user.js', address = '0.0.0.0', port = port } })
+overseer.run_task({ name = 'http', params = { cwd = vim.fn.getcwd(), path = './output/ppixiv-main.user.js', address = '0.0.0.0', port = port } })
 
 overseer.register_template({
   name = 'android install dev',
